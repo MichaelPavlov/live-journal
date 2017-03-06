@@ -16,10 +16,11 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from live_magazine.views import home_view
+from live_magazine.views import home_view, ProfileView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^(?P<username>\w+)$', ProfileView.as_view(), name="control"),
     url(r'^(?P<username>\w+)/', include('blog.urls', namespace='blog')),
     url(r'^$', home_view, name='home'),
 ]

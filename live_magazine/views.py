@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 
 from blog.models import Profile
 
@@ -9,3 +10,7 @@ def home_view(request):
         'profiles': profiles
     }
     return render(request, 'home_page.html', context)
+
+
+class ProfileView(TemplateView):
+    template_name = "profile_page.html"
