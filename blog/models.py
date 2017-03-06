@@ -5,12 +5,16 @@ from django.db.models import Model, DateTimeField, CharField, TextField
 from django.db.models import OneToOneField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse_lazy
 
 
 class Profile(Model):
     user = OneToOneField(settings.AUTH_USER_MODEL)
     read_posts = ManyToManyField('Post', related_name='profiles_read_this')
     subscriptions = ManyToManyField('self', related_name='profiles')
+
+    def get_absolute_url(self):
+        return reverse_lazy("blog:posts", kwargs={'username': self.user.username})
 
 
 class Post(Model):
