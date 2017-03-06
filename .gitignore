@@ -97,3 +97,4 @@ ENV/
 
 /documents/
 .idea
+/db.sqlite3

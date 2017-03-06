@@ -9,15 +9,15 @@ from django.dispatch import receiver
 
 class Profile(Model):
     user = OneToOneField(settings.AUTH_USER_MODEL)
-    read_posts = ManyToManyField('Post')
-    subscriptions = ManyToManyField('self')
+    read_posts = ManyToManyField('Post', related_name='profiles_read_this')
+    subscriptions = ManyToManyField('self', related_name='profiles')
 
 
 class Post(Model):
     timestamp = DateTimeField(auto_now=False, auto_now_add=True)
     title = CharField(max_length=250)
     content = TextField()
-    user_profile = ForeignKey(Profile, default=1)
+    profile = ForeignKey(Profile, default=1)
 
     def __str__(self):
         return self.title

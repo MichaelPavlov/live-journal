@@ -12,7 +12,7 @@ class FeedView(ListView):
 
     def get_queryset(self):
         profile = self.request.user.profile
-        Post.objects.filter(user_profile=profile)
+        Post.objects.filter(profile__in=profile.subscriptions.all())
 
 
 class UserPostsView(ListView):
