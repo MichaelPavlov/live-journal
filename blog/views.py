@@ -11,17 +11,23 @@ from django.views.generic import ListView
 from django.views.generic import UpdateView
 
 from blog.forms import PostForm
-from blog.models import Post, Profile
+from blog.models import Post, Profile, Subscription
 
 User = get_user_model()
 
 
-class AuthorMixin(object):
+class BlogMixin(object):
     def get_context_data(self, **kwargs):
-        context = super(AuthorMixin, self).get_context_data(**kwargs)
+        context = super(BlogMixin, self).get_context_data(**kwargs)
         username = self.kwargs.get('username')
+        author = User.objects.get(username=username)
+        try:
+            subscription = Subscription.objects.get(subject=author.profile, subscriber=self.request.user.profile)
+        except:
+            subscription = None
         context.update({
-            'author': User.objects.get(username=username),
+            'author': author,
+            'subscription': subscription,
         })
         return context
 
@@ -37,7 +43,7 @@ class FeedView(ListView):
         return Post.objects.filter(profile__in=profile.subscriptions.all())
 
 
-class UserPostsView(AuthorMixin, ListView):
+class UserPostsView(BlogMixin, ListView):
     model = Post
 
     def get_queryset(self):
@@ -53,13 +59,14 @@ class ProfileView(DetailView):
         return get_object_or_404(Profile, user__username=self.kwargs.get('username'))
 
     def post(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.is_ajax() and request.user.is_authenticated():
             if request.user == self.get_object().user:
                 return HttpResponse('Нельзя подписаться на себя', status=400)
             profile = self.get_object()
+            subscription = Subscription.objects.toggle_subscribe(profile, request.user.profile)
             data = {
-                'subscribed': profile.toggle_subscribe(request.user.profile),
-                'author': self.get_object().user.username
+                'subscribed': subscription,
+                'author': profile.user.username
             }
             json_data = json.dumps(data)
             return HttpResponse(json_data, 'application/json')
@@ -71,7 +78,7 @@ class CreatePostView(CreateView):
     form_class = PostForm
 
 
-class DetailPostView(AuthorMixin, DetailView):
+class DetailPostView(BlogMixin, DetailView):
     model = Post
 
 

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db.models import ForeignKey
+from django.db.models import Manager
 from django.db.models import ManyToManyField
 from django.db.models import Model, DateTimeField, CharField, TextField
 from django.db.models import OneToOneField
@@ -11,18 +12,9 @@ from django.urls import reverse_lazy
 class Profile(Model):
     user = OneToOneField(settings.AUTH_USER_MODEL)
     read_posts = ManyToManyField('Post', related_name='profiles_read_this')
-    subscriptions = ManyToManyField('self', related_name='profiles')
 
     def get_absolute_url(self):
         return reverse_lazy("blog:posts", kwargs={'username': self.user.username})
-
-    def toggle_subscribe(self, subscriber):
-        try:
-            self.subscriptions.add(subscriber)
-            return True
-        except:
-            self.subscriptions.remove(subscriber)
-            return False
 
 
 class Post(Model):
@@ -42,6 +34,28 @@ class Post(Model):
 
     def __str__(self):
         return self.title
+
+
+class SubscriptionManager(Manager):
+    def toggle_subscribe(self, subject, subscriber):
+        subscription, created = self.get_or_create(subject=subject, subscriber=subscriber)
+        if not created:
+            subscription.delete()
+            return False
+        return True
+
+
+class Subscription(Model):
+    subject = ForeignKey(Profile, related_name="followers")
+    subscriber = ForeignKey(Profile, related_name="following")
+
+    objects = SubscriptionManager()
+
+    class Meta:
+        unique_together = (('subject', 'subscriber',),)
+
+    def __str__(self):
+        return "%s to %s" % (self.subject.user.username, self.subject.user.subscriber)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
