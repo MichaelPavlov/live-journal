@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 
 {% block container %}
+    {% if user.is_authenticated and author != user %}
+        <div class="row">
+            <div class="ml-auto">
+                {% if author in user.profile.subscriptions %}
+                    <button id="btn-subscribe" class="btn btn-secondary">Отписаться от {{ author.username }}</button>
+                {% else %}
+                    <button id="btn-subscribe" class="btn btn-info">Подписаться на {{ author.username }}</button>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
     <span>Всего постов у {{ author }} : {{ object_list.count }}</span>
     {% for post in object_list %}
         <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
@@ -10,4 +21,40 @@
         </div>
         <hr>
     {% endfor %}
+{% endblock %}
+
+{% block script %}
+    <script>
+        function toggleSubscribe() {
+            console.log("function call");
+            var subscribeBtn = $('#btn-subscribe');
+            $.ajax({
+                url: "{% url "profile" username=author.username %}",
+                method: "post",
+                success: function (data) {
+                    console.log(data);
+                    var btnText = '';
+                    if (data.subscribed == 1) {
+                        subscribeBtn.addClass('btn-secondary');
+                        subscribeBtn.removeClass('btn-info');
+                        btnText = "Отписаться от " + data.author;
+
+                    } else if (data.subscribed == 0) {
+                        subscribeBtn.addClass('btn-secondary');
+                        subscribeBtn.removeClass('btn-info');
+                        btnText = "Подписаться на " + data.author;
+
+                    }
+                    subscribeBtn.html(btnText);
+                },
+                error: function (error) {
+                    console.log(error.responseText);
+                }
+            })
+        }
+
+        $('#btn-subscribe').click(function () {
+            toggleSubscribe();
+        })
+    </script>
 {% endblock %}

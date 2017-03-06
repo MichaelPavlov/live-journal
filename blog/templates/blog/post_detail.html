@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block container %}
+    {% if user.is_authenticated and author != user %}
+        <div class="row">
+            <div class="ml-auto">
+                <button id="btn-subscribe" class="btn btn-info">Подписаться на {{ author.username }}</button>
+            </div>
+        </div>
+    {% endif %}
     <h1>{{ object.title }}</h1>
     <small>{{ post.timestamp|date:"d E в G:i" }}</small>
     <p>{{ object.content }}</p>

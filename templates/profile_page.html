@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block container %}
-    {% if request.user.is_authenticated  and request.user.username == username %}
-        <a href="{% url "blog:posts" username=username %}">Мой блог</a><br>
-        <a href="{% url "blog:feed" username=username %}">Моя лента</a><br>
-        <a href="{% url "blog:post-create" username=username %}">Создать новую запись в блог</a><br>
+    {% if user == object.user %}
+        <a href="{% url "blog:posts" username=object.user.username %}">Мой блог</a><br>
+        <a href="{% url "blog:feed" username=object.user.username %}">Моя лента</a><br>
+        <a href="{% url "blog:post-create" username=object.user.username %}">Создать новую запись в блог</a><br>
     {% endif %}
 {% endblock %}

@@ -12,5 +12,3 @@ def home_view(request):
     return render(request, 'home_page.html', context)
 
 
-class ProfileView(TemplateView):
-    template_name = "profile_page.html"

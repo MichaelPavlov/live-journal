@@ -16,6 +16,14 @@ class Profile(Model):
     def get_absolute_url(self):
         return reverse_lazy("blog:posts", kwargs={'username': self.user.username})
 
+    def toggle_subscribe(self, subscriber):
+        try:
+            self.subscriptions.add(subscriber)
+            return True
+        except:
+            self.subscriptions.remove(subscriber)
+            return False
+
 
 class Post(Model):
     timestamp = DateTimeField(auto_now=False, auto_now_add=True)
