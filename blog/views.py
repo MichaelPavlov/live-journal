@@ -4,6 +4,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
+from blog.forms import PostForm
 from blog.models import Post
 
 
@@ -12,24 +13,30 @@ class FeedView(ListView):
 
     def get_queryset(self):
         profile = self.request.user.profile
-        Post.objects.filter(profile__in=profile.subscriptions.all())
+        return Post.objects.filter(profile__in=profile.subscriptions.all())
 
 
 class UserPostsView(ListView):
-    pass
+    model = Post
+
+    def get_queryset(self):
+        profile = self.request.user.profile
+        return Post.objects.filter(profile=profile)
 
 
 class CreatePostView(CreateView):
-    pass
+    model = Post
+    form_class = PostForm
 
 
 class DetailPostView(DetailView):
-    pass
+    model = Post
 
 
 class EditPostView(UpdateView):
-    pass
+    model = Post
+    form_class = PostForm
 
 
 class DeletePostView(DeleteView):
-    pass
+    model = Post
