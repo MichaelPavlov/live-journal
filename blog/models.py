@@ -23,6 +23,12 @@ class Post(Model):
     content = TextField()
     profile = ForeignKey(Profile, default=1)
 
+    def get_absolute_url(self):
+        return reverse_lazy("blog:post-detail", kwargs={
+            'username': self.profile.user.username,
+            'pk': self.id,
+        })
+
     def __str__(self):
         return self.title
 

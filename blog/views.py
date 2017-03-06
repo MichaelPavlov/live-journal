@@ -14,7 +14,7 @@ User = get_user_model()
 
 class FeedView(ListView):
     model = Post
-
+    template_name = "blog/feed_view.html"
     def get_queryset(self):
         if self.request.user.username != self.kwargs['username']:
             raise PermissionDenied("Только пользователь %s имеет доступ к этой странице" % self.kwargs['username'])
