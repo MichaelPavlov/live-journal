@@ -23,6 +23,9 @@ class Post(Model):
     content = TextField()
     profile = ForeignKey(Profile, default=1)
 
+    class Meta:
+        ordering = ['-timestamp']
+
     def get_absolute_url(self):
         return reverse_lazy("blog:post-detail", kwargs={
             'username': self.profile.user.username,

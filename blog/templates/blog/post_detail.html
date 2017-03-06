@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block container %}
     <h1>{{ object.title }}</h1>
+    <small>{{ post.timestamp|date:"d E в G:i" }}</small>
     <p>{{ object.content }}</p>
 {% endblock %}

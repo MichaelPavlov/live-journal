@@ -3,8 +3,8 @@
 {% block container %}
     <span>Всего постов у {{ author }} : {{ object_list.count }}</span>
     {% for post in object_list %}
-        <h1>{{ post.title }}</h1>
-        <small>{{ post.timestamp|date:"d E" }}</small>
+        <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
+        <small>{{ post.timestamp|date:"d E в G:i" }}</small>
         <div>
             {{ post.content }}
         </div>
