@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
 from django.views.generic import DetailView
@@ -15,6 +16,8 @@ class FeedView(ListView):
     model = Post
 
     def get_queryset(self):
+        if self.request.user.username != self.kwargs['username']:
+            raise PermissionDenied("Только пользователь %s имеет доступ к этой странице" % self.kwargs['username'])
         profile = self.request.user.profile
         return Post.objects.filter(profile__in=profile.subscriptions.all())
 
