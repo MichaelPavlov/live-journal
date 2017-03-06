@@ -40,7 +40,9 @@ class FeedView(ListView):
         if self.request.user.username != self.kwargs['username']:
             raise PermissionDenied("Только пользователь %s имеет доступ к этой странице" % self.kwargs['username'])
         profile = self.request.user.profile
-        return Post.objects.filter(profile__in=profile.subscriptions.all())
+        subscribed_to = profile.following.values_list('subject', flat=True)
+
+        return Post.objects.filter(profile__in=subscribed_to)
 
 
 class UserPostsView(BlogMixin, ListView):

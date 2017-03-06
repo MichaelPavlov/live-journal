@@ -2,8 +2,10 @@
 
 {% block container %}
     {% for post in object_list %}
-        <h1>{{ post.profile.user.username }}: {{ post.title }}</h1>
-        <small>{{ post.timestamp|date:"d E" }}</small>
+        <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
+        <small>{{ post.timestamp|date:"d E в G:i" }} от <a
+                href="{% url "blog:posts" username=post.profile.user.username %}">{{ post.profile.user.username }}</a>
+        </small>
         <div>
             {{ post.content }}
         </div>
