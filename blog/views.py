@@ -4,9 +4,15 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
+from blog.models import Post
+
 
 class FeedView(ListView):
-    pass
+    model = Post
+
+    def get_queryset(self):
+        profile = self.request.user.profile
+        Post.objects.filter(user_profile=profile)
 
 
 class UserPostsView(ListView):
