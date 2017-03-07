@@ -36,6 +36,11 @@ class FeedView(ListView):
     model = Post
     template_name = "blog/feed_view.html"
 
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax() and request.user.is_authenticated():
+            request.user.profile
+        return HttpResponse("ok")
+
     def get_queryset(self):
         if self.request.user.username != self.kwargs['username']:
             raise PermissionDenied("Только пользователь %s имеет доступ к этой странице" % self.kwargs['username'])

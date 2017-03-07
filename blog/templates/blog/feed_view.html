@@ -1,14 +1,59 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block container %}
     {% for post in object_list %}
-        <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
-        <small>{{ post.timestamp|date:"d E в G:i" }} от <a
-                href="{% url "blog:posts" username=post.profile.user.username %}">{{ post.profile.user.username }}</a>
-        </small>
-        <div>
-            {{ post.content }}
+        <div data-id="{{ post.id }}">
+            <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
+
+            <small>{{ post.timestamp|date:"d E в G:i" }} от <a
+                    href="{% url "blog:posts" username=post.profile.user.username %}">{{ post.profile.user.username }}</a>
+            </small>
+            {% if post not in request.user.following.read_posts %}
+                <a class="ml-3" href="#"><img src="{% static "img/message-plus.png" %}"></a>
+            {% endif %}
+            <div>
+                {{ post.content }}
+            </div>
         </div>
         <hr>
     {% endfor %}
+{% endblock %}
+
+{% block script %}
+    <script>
+        function markPostAsRead() {
+            console.log("function call");
+            var subscribeBtn = $('#btn-subscribe');
+            data = {
+                "post":
+            }
+            $.ajax({
+                url: "{% url "blog:feed" username=request.user.username %}",
+                method: "post",
+                success: function (data) {
+                    console.log(data);
+                    var btnText = '';
+                    if (data.subscribed == 1) {
+                        subscribeBtn.addClass('btn-secondary');
+                        subscribeBtn.removeClass('btn-info');
+                        btnText = "Отписаться от " + data.author;
+
+                    } else if (data.subscribed == 0) {
+                        subscribeBtn.addClass('btn-info');
+                        subscribeBtn.removeClass('btn-secondary');
+                        btnText = "Подписаться на " + data.author;
+
+                    }
+                    subscribeBtn.html(btnText);
+                },
+                error: function (error) {
+                    console.log(error.responseText);
+                }
+            })
+        }
+
+        $('#btn-markread').click(function () {
+            markPostAsRead();
+        })
+    </script>
 {% endblock %}
