@@ -1,23 +1,26 @@
 {% extends "base.html" %}
 
 {% block container %}
-    {% if user.is_authenticated and author != user %}
-        <div class="row">
-            <div class="ml-auto">
-                {% if subscription %}
-                    <button id="btn-subscribe" class="btn btn-secondary">Отписаться от {{ author.username }}</button>
-                {% else %}
-                    <button id="btn-subscribe" class="btn btn-info">Подписаться на {{ author.username }}</button>
-                {% endif %}
+    {% if user.is_authenticated %}
+        {% if author != user %}
+            <div class="row">
+                <div class="ml-auto">
+                    {% if subscription %}
+                        <button id="btn-subscribe" class="btn btn-secondary">Отписаться
+                            от {{ author.username }}</button>
+                    {% else %}
+                        <button id="btn-subscribe" class="btn btn-info">Подписаться на {{ author.username }}</button>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-    {% else %}
-        <div class="row">
-            <div class="ml-auto">
-                <a class="btn btn-primary" href="{% url "blog:post-create" username=request.user.username %}">Добавить
-                    запись</a>
+        {% else %}
+            <div class="row">
+                <div class="ml-auto">
+                    <a class="btn btn-primary" href="{% url "blog:post-create" username=request.user.username %}">Добавить
+                        запись</a>
+                </div>
             </div>
-        </div>
+        {% endif %}
     {% endif %}
     <span>Всего постов у {{ author }} : {{ object_list.count }}</span>
     {% for post in object_list %}

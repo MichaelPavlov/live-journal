@@ -2,49 +2,44 @@
 {% load static %}
 {% block container %}
     {% for post in object_list %}
-        <div data-id="{{ post.id }}">
+        <div class="mb-5">
             <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
 
             <small>{{ post.timestamp|date:"d E в G:i" }} от <a
-                    href="{% url "blog:posts" username=post.profile.user.username %}">{{ post.profile.user.username }}</a>
+                    href="{% url "blog:posts" username=post.user.username %}">{{ post.user.username }}</a>
             </small>
-            {% if post not in request.user.following.read_posts %}
-                <a class="ml-3" href="#"><img src="{% static "img/message-plus.png" %}"></a>
+            {% if request.user.is_authenticated %}
+                {% if post not in request.user.blog_data.read_posts.all %}
+                    <a class="ml-3 btn-read-message" href="#" data-postid="{{ post.id }}"><img
+                            src="{% static "img/message-plus.png" %}"></a>
+                {% endif %}
             {% endif %}
-            <div>
+
+            <div class="mt-4">
                 {{ post.content }}
             </div>
         </div>
         <hr>
+    {% empty %}
+        <p class="lead">Не найдено постов среди актуальных подписок</p>
+        <a class="btn btn-primary" href="{% url "home" %}">Посмотреть кто зарегистрирован</a>
     {% endfor %}
 {% endblock %}
 
 {% block script %}
     <script>
-        function markPostAsRead() {
-            console.log("function call");
+        function markPostAsRead(btnClicked) {
             var subscribeBtn = $('#btn-subscribe');
-            data = {
-                "post":
-            }
+            var data = {
+                "post": btnClicked.data('postid')
+            };
             $.ajax({
                 url: "{% url "blog:feed" username=request.user.username %}",
                 method: "post",
+                data: data,
                 success: function (data) {
                     console.log(data);
-                    var btnText = '';
-                    if (data.subscribed == 1) {
-                        subscribeBtn.addClass('btn-secondary');
-                        subscribeBtn.removeClass('btn-info');
-                        btnText = "Отписаться от " + data.author;
-
-                    } else if (data.subscribed == 0) {
-                        subscribeBtn.addClass('btn-info');
-                        subscribeBtn.removeClass('btn-secondary');
-                        btnText = "Подписаться на " + data.author;
-
-                    }
-                    subscribeBtn.html(btnText);
+                    btnClicked.remove();
                 },
                 error: function (error) {
                     console.log(error.responseText);
@@ -52,8 +47,10 @@
             })
         }
 
-        $('#btn-markread').click(function () {
-            markPostAsRead();
+        $('.btn-read-message').click(function () {
+            var btnClicked = $(this);
+            markPostAsRead(btnClicked);
+            console.log();
         })
     </script>
 {% endblock %}

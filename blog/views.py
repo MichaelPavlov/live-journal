@@ -22,7 +22,7 @@ class BlogMixin(object):
         username = self.kwargs.get('username')
         author = User.objects.get(username=username)
         try:
-            subscription = Subscription.objects.get(subject=author.profile, subscriber=self.request.user.profile)
+            subscription = Subscription.objects.get(subject=author, subscriber=self.request.user)
         except:
             subscription = None
         context.update({
@@ -38,16 +38,19 @@ class FeedView(ListView):
 
     def post(self, request, *args, **kwargs):
         if request.is_ajax() and request.user.is_authenticated():
-            request.user.profile
+            post_id = request.POST.get("post", "")
+            if not post_id:
+                return HttpResponse('Неверный id поста', status=400)
+            request.user.blog_data.read_posts.add(int(post_id))
         return HttpResponse("ok")
 
     def get_queryset(self):
         if self.request.user.username != self.kwargs['username']:
             raise PermissionDenied("Только пользователь %s имеет доступ к этой странице" % self.kwargs['username'])
-        profile = self.request.user.profile
-        subscribed_to = profile.following.values_list('subject', flat=True)
+        follower = self.request.user
+        subscribed_to = follower.following.values_list('subject', flat=True)
 
-        return Post.objects.filter(profile__in=subscribed_to)
+        return Post.objects.filter(user__in=subscribed_to)
 
 
 class UserPostsView(BlogMixin, ListView):
@@ -55,7 +58,7 @@ class UserPostsView(BlogMixin, ListView):
 
     def get_queryset(self):
         username = self.kwargs.get('username')
-        return Post.objects.filter(profile__user__username=username)
+        return Post.objects.filter(user__username=username)
 
 
 class ProfileView(DetailView):
@@ -69,11 +72,11 @@ class ProfileView(DetailView):
         if request.is_ajax() and request.user.is_authenticated():
             if request.user == self.get_object().user:
                 return HttpResponse('Нельзя подписаться на себя', status=400)
-            profile = self.get_object()
-            subscription = Subscription.objects.toggle_subscribe(profile, request.user.profile)
+            subject_user = self.get_object().user
+            subscription = Subscription.objects.toggle_subscribe(subject_user, request.user)
             data = {
                 'subscribed': subscription,
-                'author': profile.user.username
+                'author': subject_user.username
             }
             json_data = json.dumps(data)
             return HttpResponse(json_data, 'application/json')
@@ -86,7 +89,7 @@ class CreatePostView(CreateView):
 
     def form_valid(self, form):
         post = form.save(commit=False)
-        post.profile = self.request.user.profile
+        post.user = self.request.user
         post.save()
         return super(CreatePostView, self).form_valid(form)
 
