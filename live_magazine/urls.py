@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^(?P<username>\w+)$', ProfileView.as_view(), name="profile"),
     url(r'^(?P<username>\w+)/', include('blog.urls', namespace='blog')),
+    url(r'^', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^$', home_view, name='home'),
 ]
