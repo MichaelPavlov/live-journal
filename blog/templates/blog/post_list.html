@@ -11,6 +11,13 @@
                 {% endif %}
             </div>
         </div>
+    {% else %}
+        <div class="row">
+            <div class="ml-auto">
+                <a class="btn btn-primary" href="{% url "blog:post-create" username=request.user.username %}">Добавить
+                    запись</a>
+            </div>
+        </div>
     {% endif %}
     <span>Всего постов у {{ author }} : {{ object_list.count }}</span>
     {% for post in object_list %}
