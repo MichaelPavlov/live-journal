@@ -79,6 +79,12 @@ class CreatePostView(CreateView):
     model = Post
     form_class = PostForm
 
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.profile = self.request.user.profile
+        post.save()
+        return super(CreatePostView, self).form_valid(form)
+
 
 class DetailPostView(BlogMixin, DetailView):
     model = Post
